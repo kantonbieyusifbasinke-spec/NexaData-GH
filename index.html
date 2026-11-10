@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#071426" />
+  <meta name="description" content="NexaData GH — a simple way to explore data bundles in Ghana." />
+  <title>NexaData GH | Connecting You Beyond Limits</title>
+  <style>
+    :root {
+      --bg: #071426;
+      --bg-soft: #0b1b31;
+      --panel: rgba(16, 38, 65, .82);
+      --panel-solid: #102641;
+      --line: rgba(172, 204, 235, .13);
+      --text: #f4f8ff;
+      --muted: #a8b9ce;
+      --cyan: #36d7f5;
+      --cyan-dark: #0aa9cd;
+      --mint: #74f0c2;
+      --gold: #ffd887;
+      --danger: #ff9292;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .28);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 78% 8%, rgba(28, 154, 199, .16), transparent 28rem),
+        radial-gradient(circle at 10% 38%, rgba(34, 106, 162, .13), transparent 30rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    .container { width: min(1160px, calc(100% - 40px)); margin-inline: auto; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(7, 20, 38, .82);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+    .nav {
+      min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 850; letter-spacing: -.6px; font-size: 1.16rem; }
+    .brand-mark {
+      width: 39px; height: 39px; display: grid; place-items: center; border-radius: 13px;
+      color: #031522; font-weight: 950; font-size: 1.15rem;
+      background: linear-gradient(135deg, var(--cyan), var(--mint));
+      box-shadow: 0 7px 24px rgba(54, 215, 245, .23);
+    }
+    .brand em { color: var(--cyan); font-style: normal; }
+    .nav-links { display: flex; align-items: center; gap: 32px; color: #bdcadd; font-size: .94rem; }
+    .nav-links a:hover { color: var(--cyan); }
+    .nav-cta, .primary-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      border: 0; border-radius: 12px; padding: 12px 19px; color: #041622;
+      background: linear-gradient(110deg, var(--cyan), #8cebdc);
+      font-weight: 800; cursor: pointer; box-shadow: 0 10px 28px rgba(54, 215, 245, .16);
+      transition: transform .2s ease, filter .2s ease;
+    }
+    .nav-cta:hover, .primary-btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .menu-toggle { display: none; color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 8px 11px; }
+
+    .hero { padding: 82px 0 76px; overflow: hidden; }
+    .hero-grid { display: grid; grid-template-columns: 1.06fr .94fr; align-items: center; gap: 54px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 9px; padding: 7px 12px; border-radius: 999px;
+      color: #a8f0ef; background: rgba(54, 215, 245, .08); border: 1px solid rgba(54, 215, 245, .2);
+      font-weight: 700; font-size: .79rem; letter-spacing: .07em; text-transform: uppercase;
+    }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 13px var(--mint); }
+    h1 { max-width: 680px; margin: 22px 0 18px; font-size: clamp(2.7rem, 5.4vw, 4.7rem); line-height: 1.04; letter-spacing: -.065em; }
+    h1 span { color: var(--cyan); }
+    .hero-copy { max-width: 570px; color: var(--muted); font-size: 1.08rem; line-height: 1.8; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 17px; margin-top: 30px; }
+    .secondary-link { color: #d4e3f3; font-weight: 700; font-size: .95rem; }
+    .secondary-link span { color: var(--cyan); padding-left: 5px; }
+    .hero-note { display: flex; align-items: center; gap: 10px; color: #8fa5be; margin-top: 31px; font-size: .84rem; }
+    .check { display: grid; place-items: center; width: 20px; height: 20px; color: var(--mint); border: 1px solid rgba(116, 240, 194, .35); border-radius: 50%; font-size: .75rem; }
+
+    .visual-wrap { position: relative; min-height: 420px; display: grid; place-items: center; }
+    .visual-glow { position: absolute; width: 340px; height: 340px; border-radius: 50%; background: rgba(17, 173, 218, .16); filter: blur(65px); }
+    .orbit { position: absolute; width: 390px; height: 390px; border: 1px solid rgba(116, 202, 236, .12); border-radius: 50%; transform: rotate(-18deg) scaleY(.72); }
+    .orbit::before, .orbit::after { content: ""; position: absolute; border: 1px solid rgba(116, 202, 236, .10); border-radius: 50%; inset: 28px; }
+    .orbit::after { inset: 59px; }
+    .phone-card {
+      position: relative; z-index: 2; width: min(315px, 82%); padding: 22px; border-radius: 29px;
+      background: linear-gradient(155deg, rgba(23, 53, 84, .96), rgba(9, 26, 47, .98));
+      border: 1px solid rgba(180, 226, 255, .2); box-shadow: 0 32px 90px rgba(0,0,0,.42), inset 0 1px rgba(255,255,255,.08);
+      transform: rotate(3deg);
+    }
+    .phone-top { display: flex; justify-content: space-between; align-items: center; color: #9db3cb; font-size: .76rem; }
+    .signal { display: flex; gap: 4px; align-items: end; height: 15px; }
+    .signal i { width: 4px; background: var(--mint); border-radius: 3px; display: block; }
+    .signal i:nth-child(1) { height: 5px; }.signal i:nth-child(2) { height: 9px; }.signal i:nth-child(3) { height: 12px; }.signal i:nth-child(4) { height: 15px; }
+    .phone-title { margin: 27px 0 4px; color: #9eb4ca; font-size: .8rem; }
+    .phone-brand { font-size: 1.45rem; font-weight: 850; letter-spacing: -.04em; }
+    .phone-brand span { color: var(--cyan); }
+    .data-tile { margin-top: 21px; padding: 19px; border: 1px solid rgba(54, 215, 245, .2); border-radius: 17px; background: linear-gradient(135deg, rgba(54, 215, 245, .13), rgba(116, 240, 194, .06)); }
+    .data-tile small { color: #a5bbd0; }
+    .data-amount { display: block; font-size: 2.6rem; font-weight: 900; letter-spacing: -.07em; line-height: 1.15; margin-top: 4px; }
+    .data-amount span { font-size: 1rem; color: var(--cyan); letter-spacing: 0; }
+    .tile-bottom { display: flex; justify-content: space-between; margin-top: 18px; color: #a8bdd1; font-size: .77rem; }
+    .phone-lines { margin-top: 22px; display: grid; gap: 10px; }
+    .phone-line { display: flex; justify-content: space-between; color: #a7b9cb; font-size: .79rem; }
+    .phone-line b { color: #edf8ff; }
+    .floating-tag { position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-radius: 14px; background: rgba(16, 40, 67, .94); border: 1px solid var(--line); box-shadow: var(--shadow); font-size: .82rem; font-weight: 750; }
+    .floating-tag.one { top: 64px; right: -3px; }.floating-tag.two { bottom: 62px; left: -12px; }
+    .tag-icon { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; background: rgba(116, 240, 194, .12); color: var(--mint); }
+
+    .trust-strip { border-block: 1px solid var(--line); background: rgba(11, 27, 49, .58); }
+    .trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: 21px 0; gap: 15px; }
+    .trust-item { display: flex; align-items: center; justify-content: center; gap: 11px; color: #b3c5d9; font-size: .9rem; }
+    .trust-icon { color: var(--cyan); font-size: 1.1rem; }
+
+    section.content-section { padding: 88px 0; }
+    .section-heading { max-width: 650px; margin: 0 auto 38px; text-align: center; }
+    .section-kicker { color: var(--cyan); font-size: .78rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    h2 { margin: 10px 0 12px; font-size: clamp(2rem, 3.4vw, 2.9rem); line-height: 1.14; letter-spacing: -.05em; }
+    .section-heading p { color: var(--muted); margin: 0; }
+    .network-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .network-card {
+      text-align: left; padding: 23px; border: 1px solid var(--line); border-radius: 18px; color: var(--text);
+      background: linear-gradient(145deg, rgba(17, 43, 71, .9), rgba(11, 28, 49, .9)); cursor: pointer;
+      transition: .2s ease; min-height: 150px;
+    }
+    .network-card:hover, .network-card.active { border-color: rgba(54, 215, 245, .65); transform: translateY(-4px); box-shadow: 0 15px 36px rgba(0,0,0,.18); }
+    .network-card.active { background: linear-gradient(145deg, rgba(20, 74, 94, .75), rgba(11, 35, 57, .95)); }
+    .network-top { display: flex; align-items: center; justify-content: space-between; }
+    .network-logo { width: 45px; height: 45px; display: grid; place-items: center; border-radius: 13px; font-weight: 900; color: #061827; background: linear-gradient(135deg, #f8d45b, #f49b39); }
+    .network-card:nth-child(2) .network-logo { background: linear-gradient(135deg, #f7a1bf, #e34e86); }
+    .network-card:nth-child(3) .network-logo { background: linear-gradient(135deg, #b4a0ff, #7e70e9); }
+    .network-arrow { color: var(--cyan); font-size: 1.15rem; }
+    .network-card h3 { margin: 17px 0 2px; font-size: 1.05rem; }
+    .network-card p { color: var(--muted); margin: 0; font-size: .84rem; }
+
+    .purchase-section { padding: 15px 0 95px; }
+    .purchase-card {
+      display: grid; grid-template-columns: .82fr 1.18fr; overflow: hidden; border-radius: 26px;
+      border: 1px solid rgba(130, 194, 226, .17); background: var(--panel); box-shadow: var(--shadow);
+    }
+    .purchase-aside { padding: 39px; background: linear-gradient(155deg, rgba(13, 69, 93, .85), rgba(13, 37, 62, .97)); }
+    .purchase-aside h2 { font-size: 2rem; }
+    .purchase-aside p { color: #b4c8d9; font-size: .92rem; }
+    .aside-points { display: grid; gap: 14px; margin-top: 28px; }
+    .aside-point { display: flex; align-items: center; gap: 10px; color: #dcecf8; font-size: .87rem; }
+    .aside-point span { color: var(--mint); }
+    .form-area { padding: 39px; }
+    .form-title { margin: 0 0 5px; font-size: 1.45rem; letter-spacing: -.035em; }
+    .form-subtitle { color: var(--muted); margin: 0 0 25px; font-size: .88rem; }
+    .field { margin-bottom: 18px; }
+    .field label { display: block; margin-bottom: 8px; color: #dbe8f5; font-size: .85rem; font-weight: 700; }
+    .input-wrap { position: relative; }
+    .input-icon { position: absolute; top: 50%; left: 14px; transform: translateY(-50%); color: #7f9ab5; }
+    .field input, .field select {
+      width: 100%; min-height: 51px; padding: 12px 14px 12px 42px; border-radius: 11px;
+      border: 1px solid rgba(165, 197, 224, .18); outline: none; color: var(--text); background: rgba(5, 18, 34, .72);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field select { padding-left: 14px; color-scheme: dark; }
+    .field input:focus, .field select:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(54, 215, 245, .1); }
+    .field input::placeholder { color: #738ba5; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 15px; border-radius: 12px; border: 1px solid var(--line); background: rgba(5, 18, 34, .48); margin: 5px 0 18px; }
+    .summary small { display: block; color: #829bb4; font-size: .73rem; }
+    .summary strong { font-size: .91rem; }
+    .summary-badge { color: var(--mint); font-size: .78rem; font-weight: 800; }
+    .submit-btn { width: 100%; min-height: 53px; }
+    .form-message { min-height: 22px; margin: 12px 0 0; color: var(--muted); font-size: .82rem; text-align: center; }
+    .disclaimer { color: #7890a9; text-align: center; font-size: .72rem; margin: 13px 0 0; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .step-card { padding: 25px; border-radius: 18px; border: 1px solid var(--line); background: rgba(15, 36, 60, .64); }
+    .step-number { color: var(--cyan); font-size: .78rem; letter-spacing: .1em; font-weight: 900; }
+    .step-card h3 { margin: 12px 0 6px; font-size: 1.1rem; }
+    .step-card p { margin: 0; color: var(--muted); font-size: .88rem; }
+
+    .bottom-cta { padding: 48px; border-radius: 24px; text-align: center; border: 1px solid rgba(54, 215, 245, .2); background: radial-gradient(circle at 50% 0, rgba(54,215,245,.13), transparent 65%), #0c2038; }
+    .bottom-cta p { color: var(--muted); margin: 0 auto 22px; max-width: 540px; }
+    footer { border-top: 1px solid var(--line); padding: 27px 0; color: #8298b0; font-size: .81rem; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+    .footer-brand { color: #dce9f7; font-weight: 800; }
+
+    @media (max-width: 850px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 15px; }
+      .hero { padding-top: 65px; }
+      .visual-wrap { min-height: 390px; }
+      .purchase-card { grid-template-columns: 1fr; }
+      .purchase-aside { padding: 30px; }
+      .aside-points { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 650px) {
+      .container { width: min(100% - 30px, 1160px); }
+      .nav { min-height: 68px; }
+      .menu-toggle { display: block; }
+      .nav-cta { display: none; }
+      .nav-links { display: none; position: absolute; top: 68px; left: 0; right: 0; padding: 18px 22px 22px; background: #0b1b31; border-bottom: 1px solid var(--line); flex-direction: column; align-items: flex-start; gap: 16px; }
+      .nav-links.open { display: flex; }
+      .hero { padding: 55px 0 43px; }
+      h1 { font-size: clamp(2.5rem, 12vw, 3.5rem); }
+      .hero-copy { font-size: .98rem; }
+      .visual-wrap { min-height: 355px; }
+      .orbit { width: 310px; height: 310px; }
+      .phone-card { width: 265px; }
+      .floating-tag.one { right: -2px; top: 30px; }.floating-tag.two { left: -2px; bottom: 31px; }
+      .trust-grid { grid-template-columns: 1fr; gap: 13px; padding: 18px 0; }
+      .trust-item { justify-content: flex-start; }
+      section.content-section { padding: 65px 0; }
+      .network-grid, .steps-grid { grid-template-columns: 1fr; }
+      .network-card { min-height: 130px; }
+      .purchase-section { padding-bottom: 65px; }
+      .purchase-aside, .form-area { padding: 25px 20px; }
+      .aside-points { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .bottom-cta { padding: 34px 20px; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="NexaData GH home">
+        <span class="brand-mark">N</span><span>NexaData <em>GH</em></span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="#home">Home</a>
+        <a href="#networks">Networks</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#buy">Buy data</a>
+      </nav>
+      <a class="nav-cta" href="#buy">Get started <span>→</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Your data connection starts here</div>
+          <h1>Stay connected.<br><span>Go beyond limits.</span></h1>
+          <p class="hero-copy">Explore data bundles for Ghana's leading mobile networks through one simple, easy-to-use platform. Choose your network, enter your number and select a bundle.</p>
+          <div class="hero-actions">
+            <a class="primary-btn" href="#buy">Explore data bundles <span>→</span></a>
+            <a class="secondary-link" href="#how-it-works">See how it works <span>↗</span></a>
+          </div>
+          <div class="hero-note"><span class="check">✓</span> A simple experience, designed around you.</div>
+        </div>
+
+        <div class="visual-wrap" aria-label="Decorative data bundle preview">
+          <div class="visual-glow"></div><div class="orbit"></div>
+          <div class="floating-tag one"><span class="tag-icon">✦</span> Easy bundle selection</div>
+          <div class="phone-card">
+            <div class="phone-top"><span>YOUR CONNECTION</span><span class="signal"><i></i><i></i><i></i><i></i></span></div>
+            <div class="phone-title">Welcome to</div>
+            <div class="phone-brand">NexaData <span>GH</span></div>
+            <div class="data-tile">
+              <small>DATA THAT KEEPS YOU MOVING</small>
+              <strong class="data-amount">Stay <span>connected</span></strong>
+              <div class="tile-bottom"><span>Simple</span><span>Convenient</span><span>Reliable*</span></div>
+            </div>
+            <div class="phone-lines"><div class="phone-line"><span>Choose network</span><b>MTN · Telecel · AT</b></div><div class="phone-line"><span>Choose a bundle</span><b>Your choice</b></div></div>
+          </div>
+          <div class="floating-tag two"><span class="tag-icon">⌁</span> Three networks in one place</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust-strip">
+      <div class="container trust-grid">
+        <div class="trust-item"><span class="trust-icon">◈</span> Multiple network options</div>
+        <div class="trust-item"><span class="trust-icon">⌁</span> Straightforward ordering</div>
+        <div class="trust-item"><span class="trust-icon">◷</span> Built for convenience</div>
+      </div>
+    </div>
+
+    <section class="content-section" id="networks">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-kicker">Choose your connection</div>
+          <h2>Your network. Your choice.</h2>
+          <p>Select from the available mobile networks and find a bundle that suits your needs.</p>
+        </div>
+        <div class="network-grid">
+          <button class="network-card" type="button" data-network="MTN" aria-pressed="false">
+            <div class="network-top"><span class="network-logo">MTN</span><span class="network-arrow">↗</span></div>
+            <h3>MTN</h3><p>Choose an MTN data bundle.</p>
+          </button>
+          <button class="network-card" type="button" data-network="Telecel" aria-pressed="false">
+            <div class="network-top"><span class="network-logo">T</span><span class="network-arrow">↗</span></div>
+            <h3>Telecel</h3><p>Choose a Telecel data bundle.</p>
+          </button>
+          <button class="network-card" type="button" data-network="AT" aria-pressed="false">
+            <div class="network-top"><span class="network-logo">AT</span><span class="network-arrow">↗</span></div>
+            <h3>AT</h3><p>Choose an AT data bundle.</p>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="purchase-section" id="buy">
+      <div class="container">
+        <div class="purchase-card">
+          <aside class="purchase-aside">
+            <div class="section-kicker">Quick order</div>
+            <h2>Get your next bundle started.</h2>
+            <p>Complete the selection form to review your requested network, phone number and data size.</p>
+            <div class="aside-points">
+              <div class="aside-point"><span>✓</span> Select a mobile network</div>
+              <div class="aside-point"><span>✓</span> Enter the recipient number</div>
+              <div class="aside-point"><span>✓</span> Pick your data size</div>
+              <div class="aside-point"><span>✓</span> Review your selection</div>
+            </div>
+          </aside>
+
+          <div class="form-area">
+            <h3 class="form-title">Choose your data bundle</h3>
+            <p class="form-subtitle">Enter the details below to prepare your order.</p>
+            <form id="bundleForm" novalidate>
+              <div class="field">
+                <label for="network">Mobile network</label>
+                <div class="input-wrap"><span class="input-icon">◉</span>
+                  <select id="network" required>
+                    <option value="">Select a network</option>
+                    <option value="MTN">MTN</option>
+                    <option value="Telecel">Telecel</option>
+                    <option value="AT">AT</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="phone">Recipient phone number</label>
+                <div class="input-wrap"><span class="input-icon">＋</span>
+                  <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 024 123 4567" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="field">
+                  <label for="bundle">Data bundle</label>
+                  <select id="bundle" required>
+                    <option value="">Choose data size</option>
+                    <option value="1GB">1 GB</option>
+                    <option value="2GB">2 GB</option>
+                    <option value="3GB">3 GB</option>
+                    <option value="5GB">5 GB</option>
+                    <option value="10GB">10 GB</option>
+                    <option value="15GB">15 GB</option>
+                    <option value="20GB">20 GB</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="customerName">Your name (optional)</label>
+                  <input id="customerName" type="text" autocomplete="name" placeholder="Enter your name" style="padding-left:14px" />
+                </div>
+              </div>
+              <div class="summary">
+                <div><small>YOUR SELECTION</small><strong id="selectionSummary">No bundle selected</strong></div>
+                <span class="summary-badge" id="summaryStatus">Not submitted</span>
+              </div>
+              <button class="primary-btn submit-btn" type="submit">Review my selection <span>→</span></button>
+              <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
+              <p class="disclaimer">Demo website: checkout, MoMo payment and automatic data delivery are not connected yet.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section" id="how-it-works">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-kicker">A simple process</div>
+          <h2>Three steps to get started.</h2>
+          <p>The ordering experience is designed to be clear from selection to review.</p>
+        </div>
+        <div class="steps-grid">
+          <article class="step-card"><div class="step-number">STEP 01</div><h3>Choose a network</h3><p>Select MTN, Telecel or AT for the number you want to top up.</p></article>
+          <article class="step-card"><div class="step-number">STEP 02</div><h3>Enter your details</h3><p>Provide the recipient's Ghana phone number and choose a data size.</p></article>
+          <article class="step-card"><div class="step-number">STEP 03</div><h3>Review your order</h3><p>Check the details carefully before proceeding when checkout is enabled.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section" style="padding-top:0">
+      <div class="container">
+        <div class="bottom-cta">
+          <div class="section-kicker">NexaData GH</div>
+          <h2>Connecting You Beyond Limits.</h2>
+          <p>One place to explore data options for the networks you use every day.</p>
+          <a class="primary-btn" href="#buy">Start your selection <span>→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div><span class="footer-brand">NexaData GH</span> · Connecting You Beyond Limits.</div>
+      <div>© <span id="year"></span> NexaData GH. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

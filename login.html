@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071426">
+<title>Login | NexaData GH</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;color:#fff;background:radial-gradient(circle at top right,#123f69 0,transparent 38%),linear-gradient(135deg,#061222,#0b1d35 60%,#071426)}
+.shell{width:100%;max-width:440px}.brand{text-align:center;margin-bottom:25px}
+.brand-mark{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#00d4ff,#1686df);color:#061222;font-size:25px;font-weight:900;box-shadow:0 10px 30px #00c8f044;margin-bottom:13px}
+.brand h1{font-size:25px;letter-spacing:.3px}.brand h1 span{color:#00d4ff}.brand p{color:#9fb3ca;font-size:13px;margin-top:7px}
+.card{background:rgba(13,34,58,.96);border:1px solid #244563;border-radius:20px;padding:30px;box-shadow:0 20px 60px #0005}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:5px;background:#071426;border-radius:11px;margin-bottom:25px}
+.tab{border:0;border-radius:8px;padding:11px;color:#9fb3ca;background:transparent;font-weight:700;cursor:pointer}.tab.active{color:#061222;background:#00c8f0}
+h2{font-size:23px;margin-bottom:8px}.intro{color:#a9bbcf;font-size:14px;line-height:1.5;margin-bottom:22px}
+label{display:block;font-size:13px;font-weight:700;margin:16px 0 8px;color:#dce8f5}
+input{width:100%;padding:14px 15px;border-radius:9px;outline:none;border:1px solid #2b4b69;background:#071426;color:#fff;font-size:15px}
+input:focus{border-color:#00c8f0;box-shadow:0 0 0 3px #00c8f01c}input::placeholder{color:#71869e}
+.forgot{display:block;text-align:right;margin-top:12px;color:#00d4ff;text-decoration:none;font-size:13px}
+.submit{width:100%;margin-top:23px;padding:15px;border:0;border-radius:9px;background:linear-gradient(90deg,#00c8f0,#36a9ff);color:#061222;font-size:15px;font-weight:800;cursor:pointer}
+.notice{min-height:18px;margin-top:14px;font-size:13px;text-align:center;color:#ffb5b5}.secure{text-align:center;margin-top:20px;color:#8198b1;font-size:12px;line-height:1.6}
+.back{display:block;text-align:center;margin-top:20px;color:#00d4ff;text-decoration:none;font-size:14px}.hidden{display:none}
+@media(max-width:420px){.card{padding:23px 19px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<div class="brand"><div class="brand-mark">N</div><h1>NexaData <span>GH</span></h1><p>Connecting You Beyond Limits.</p></div>
+<section class="card">
+<div class="tabs" role="tablist" aria-label="Account access">
+<button class="tab active" id="loginTab" type="button" onclick="showForm('login')">Log In</button>
+<button class="tab" id="signupTab" type="button" onclick="showForm('signup')">Create Account</button>
+</div>
+<form id="loginForm">
+<h2>Welcome back</h2><p class="intro">Log in to your NexaData GH account to continue.</p>
+<label for="loginEmail">Email address</label><input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+<label for="loginPassword">Password</label><input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password" minlength="6" required>
+<a class="forgot" href="#" onclick="showNotice('Password recovery will be enabled when Firebase is connected.');return false;">Forgot password?</a>
+<button class="submit" type="submit">Log In</button>
+</form>
+<form id="signupForm" class="hidden">
+<h2>Create your account</h2><p class="intro">Sign up to start using NexaData GH.</p>
+<label for="fullName">Full name</label><input id="fullName" type="text" placeholder="Enter your full name" autocomplete="name" required>
+<label for="signupEmail">Email address</label><input id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+<label for="signupPhone">Phone number</label><input id="signupPhone" type="tel" placeholder="e.g. 0241234567" autocomplete="tel" required>
+<label for="signupPassword">Create password</label><input id="signupPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password" minlength="6" required>
+<button class="submit" type="submit">Create Account</button>
+</form>
+<p class="notice" id="notice" aria-live="polite"></p>
+<p class="secure">Account access will be protected with Firebase Authentication once connected.</p>
+</section>
+<a class="back" href="index.html">← Back to NexaData GH home</a>
+</main>
+<script>
+function showForm(type) {
+  const login = type === 'login';
+
+  document.getElementById('loginForm').classList.toggle('hidden', !login);
+  document.getElementById('signupForm').classList.toggle('hidden', login);
+  document.getElementById('loginTab').classList.toggle('active', login);
+  document.getElementById('signupTab').classList.toggle('active', !login);
+  document.getElementById('notice').textContent = '';
+}
+</script>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const notice = document.getElementById("notice");
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  notice.textContent = "Logging in...";
+
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+
+    const userDoc = await getDoc(doc(db, "users", result.user.uid));
+
+    if (!userDoc.exists()) {
+      notice.textContent = "Account profile not found. Contact support.";
+      return;
+    }
+
+    if (userDoc.data().role === "admin") {
+      window.location.href = "admin-dashboard.html";
+    } else {
+      window.location.href = "index.html";
+    }
+
+  } catch (error) {
+    notice.textContent = error.message;
+  }
+});
+
+signupForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("fullName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const phone = document.getElementById("signupPhone").value.trim();
+  const password = document.getElementById("signupPassword").value;
+
+  notice.textContent = "Creating your account...";
+
+  try {
+    const result = await createUserWithEmailAndPassword(
+      auth, email, password
+    );
+
+    await updateProfile(result.user, {
+      displayName: name
+    });
+
+    await setDoc(doc(db, "users", result.user.uid), {
+      fullName: name,
+      email: email,
+      phone: phone,
+      role: "customer",
+      createdAt: serverTimestamp()
+    });
+
+    notice.textContent = "Account created successfully!";
+
+    window.location.href = "index.html";
+
+  } catch (error) {
+    notice.textContent = error.message;
+  }
+});
+
+document.querySelector(".forgot").addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("loginEmail").value.trim();
+
+  if (!email) {
+    notice.textContent = "Enter your email address first.";
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    notice.textContent = "Password reset email sent. Check your inbox.";
+  } catch (error) {
+    notice.textContent = error.message;
+  }
+});
+</script>
+</body>
+</html>
